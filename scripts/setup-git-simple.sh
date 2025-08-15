@@ -11,6 +11,9 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}🚀 Starting Git Workflow Setup${NC}"
 
 # Check if Node.js is installed
+# ============================================
+# 1. Environment Validation
+# ============================================
 if ! command -v node &> /dev/null; then
     echo -e "${YELLOW}❌ Node.js is not installed. Please install Node.js v14 or later and try again.${NC}"
     exit 1
@@ -26,38 +29,69 @@ fi
 
 echo -e "${GREEN}✓ npm is installed${NC}"
 
+# ============================================
+# 2. Project Setup
+# ============================================
 # Initialize package.json if it doesn't exist
 if [ ! -f "package.json" ]; then
     echo -e "${YELLOW}ℹ️ Initializing new npm project${NC}"
-    npm init -y
+    # Create package.json without running tests
+    echo '{
+  "name": "git-workflow-init",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A collection of scripts and documentation to help you set up a professional Git workflow for your projects.",
+  "scripts": {},
+  "keywords": [],
+  "author": "Ariz",
+  "license": "ISC"
+}' > package.json
+    echo -e "${GREEN}✓ package.json created without test script${NC}"
 else
     echo -e "${GREEN}✓ package.json already exists${NC}"
 fi
 
-# Install dependencies
+# ============================================
+# 3. Install Dependencies
+# ============================================
 echo -e "${YELLOW}📦 Installing dependencies...${NC}"
 npm install --save-dev @commitlint/cli @commitlint/config-conventional husky release-it @release-it/conventional-changelog dotenv-cli
 
 echo -e "${GREEN}✓ Dependencies installed successfully${NC}"
 
-# Configure commitlint
+# ============================================
+# 4. Configure commitlint
+# ============================================
 echo -e "${YELLOW}🛠️  Configuring commitlint...${NC}"
 cat > commitlint.config.js << 'EOL'
+/**
+ * @type {import('@commitlint/types').UserConfig}
+ */
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'type-enum': [
-      2,
-      'always',
-      ['build', 'chore', 'ci', 'docs', 'feat', 'fix', 'perf', 'refactor', 'revert', 'style', 'test']
-    ]
+    'type-enum': [2, 'always', [
+      'build', 'chore', 'ci', 'docs', 'feat', 'fix', 'perf', 
+      'refactor', 'revert', 'style', 'test'
+    ]],
+    'type-case': [2, 'always', 'lower-case'],
+    'type-empty': [2, 'never'],
+    'scope-case': [2, 'always', 'lower-case'],
+    'subject-case': [2, 'always', 'sentence-case'],
+    'subject-empty': [2, 'never'],
+    'subject-full-stop': [2, 'never', '.'],
+    'header-max-length': [2, 'always', 100],
+    'body-leading-blank': [1, 'always'],
+    'footer-leading-blank': [1, 'always']
   }
 };
 EOL
 
 echo -e "${GREEN}✓ commitlint configured${NC}"
 
-# Set up Husky
+# ============================================
+# 5. Set up Husky
+# ============================================
 echo -e "${YELLOW}🐶 Setting up Husky...${NC}"
 # Initialize Husky if not already initialized
 if [ ! -d ".husky" ]; then
@@ -73,7 +107,9 @@ else
     echo -e "${GREEN}✓ Husky already initialized${NC}"
 fi
 
-# Configure release-it
+# ============================================
+# 6. Configure release-it
+# ============================================
 echo -e "${YELLOW}🔄 Configuring release-it...${NC}"
 cat > .release-it.json << 'EOL'
 {
@@ -128,7 +164,9 @@ EOL
 
 echo -e "${GREEN}✓ release-it configured${NC}"
 
-# Update package.json scripts
+# ============================================
+# 7. Update package.json scripts
+# ============================================
 echo -e "${YELLOW}📝 Updating package.json scripts...${NC}"
 
 # Use jq if available, otherwise use sed
@@ -167,7 +205,9 @@ else
     echo -e "${GREEN}✓ .gitignore updated${NC}"
 fi
 
-# Initialize git if not already done
+# ============================================
+# 8. Initialize Git Repository
+# ============================================
 if [ ! -d ".git" ]; then
     echo -e "${YELLOW}🔧 Initializing git repository...${NC}"
     git init
@@ -176,6 +216,9 @@ else
     echo -e "${GREEN}✓ Git repository already initialized${NC}"
 fi
 
+# ============================================
+# Completion
+# ============================================
 echo -e "\n${GREEN}🎉 Git workflow setup complete!${NC}"
 echo -e "\nNext steps:"
 echo "1. Update the GITHUB_TOKEN in the .env file with your GitHub personal access token"
