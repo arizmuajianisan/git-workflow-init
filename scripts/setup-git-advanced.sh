@@ -132,18 +132,30 @@ echo -e "${GREEN}✓ commitlint configured${NC}"
 # ============================================
 echo -e "\n${YELLOW}🐶 Setting up Husky and lint-staged...${NC}"
 
-# Initialize husky
-npx husky install || error_exit "Failed to initialize husky"
+# Initialize husky if not already initialized
+if [ ! -d ".husky" ]; then
+    npx husky install || error_exit "Failed to initialize husky"
+    
+    # Create commit-msg hook
+    mkdir -p .husky
+    echo '#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
 
-# Set up git hooks
-npx husky add .husky/commit-msg 'npx --no-install commitlint --edit "$1"' || \
-    error_exit "Failed to set up commit-msg hook"
+npx --no-install commitlint --edit "$1"' > .husky/commit-msg
+    
+    # Create pre-commit hook
+    echo '#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
 
-npx husky add .husky/pre-commit 'npx --no-install lint-staged' || \
-    error_exit "Failed to set up pre-commit hook"
-
-# Make hooks executable
-chmod +x .husky/*
+npx --no-install lint-staged' > .husky/pre-commit
+    
+    # Make hooks executable
+    chmod +x .husky/*
+    
+    echo -e "${GREEN}✓ Husky hooks configured${NC}"
+else
+    echo -e "${GREEN}✓ Husky already initialized${NC}"
+fi
 
 # Configure lint-staged
 echo -e "${YELLOW}📝 Configuring lint-staged...${NC}"

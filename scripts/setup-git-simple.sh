@@ -59,13 +59,19 @@ echo -e "${GREEN}✓ commitlint configured${NC}"
 
 # Set up Husky
 echo -e "${YELLOW}🐶 Setting up Husky...${NC}"
-npx husky init
-npx husky add .husky/commit-msg 'npx --no-install commitlint --edit $1'
+# Initialize Husky if not already initialized
+if [ ! -d ".husky" ]; then
+    npx husky init
+    # Create commit-msg hook
+    echo '#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
 
-# Make husky hooks executable
-chmod +x .husky/*
-
-echo -e "${GREEN}✓ Husky setup complete${NC}"
+npx --no-install commitlint --edit "$1"' > .husky/commit-msg
+    chmod +x .husky/commit-msg
+    echo -e "${GREEN}✓ Husky setup complete${NC}"
+else
+    echo -e "${GREEN}✓ Husky already initialized${NC}"
+fi
 
 # Configure release-it
 echo -e "${YELLOW}🔄 Configuring release-it...${NC}"
