@@ -212,6 +212,14 @@ else
     echo -e "${GREEN}✓ Git repository already initialized${NC}"
 fi
 
+# Remove the .husky/pre-commit file
+if [ -f ".husky/pre-commit" ]; then
+    rm .husky/pre-commit
+    echo -e "${GREEN}✓ .husky/pre-commit removed${NC}"
+else
+    echo -e "${GREEN}✓ .husky/pre-commit already removed${NC}"
+fi
+
 # ============================================
 # Completion
 # ============================================
