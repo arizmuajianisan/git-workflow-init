@@ -6,6 +6,7 @@ set -e
 # Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${YELLOW}🚀 Starting Git Workflow Setup${NC}"
@@ -15,19 +16,19 @@ echo -e "${YELLOW}🚀 Starting Git Workflow Setup${NC}"
 # 1. Environment Validation
 # ============================================
 if ! command -v node &> /dev/null; then
-    echo -e "${YELLOW}❌ Node.js is not installed. Please install Node.js v14 or later and try again.${NC}"
+    echo -e "${RED}❌ Node.js is not installed. Please install Node.js v14 or later and try again.${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✓ Node.js is installed${NC}"
+echo -e "${GREEN}✓ Node.js is installed, version: $(node -v)${NC}"
 
 # Check if npm is installed
 if ! command -v npm &> /dev/null; then
-    echo -e "${YELLOW}❌ npm is not installed. Please install npm and try again.${NC}"
+    echo -e "${RED}❌ npm is not installed. Please install npm and try again.${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✓ npm is installed${NC}"
+echo -e "${GREEN}✓ npm is installed, version: $(npm -v)${NC}"
 
 # ============================================
 # 2. Project Setup
@@ -42,9 +43,9 @@ if [ ! -f "package.json" ]; then
   "private": true,
   "description": "A collection of scripts and documentation to help you set up a professional Git workflow for your projects.",
   "scripts": {},
-  "keywords": [],
+  "keywords": ["git", "workflow", "commitlint", "husky", "release-it", "dotenv-cli"],
   "author": "Ariz",
-  "license": "ISC"
+  "license": "MIT"
 }' > package.json
     echo -e "${GREEN}✓ package.json created without test script${NC}"
 else
@@ -55,7 +56,21 @@ fi
 # 3. Install Dependencies
 # ============================================
 echo -e "${YELLOW}📦 Installing dependencies...${NC}"
-npm install --save-dev @commitlint/cli @commitlint/config-conventional husky release-it @release-it/conventional-changelog dotenv-cli
+
+# Install dependencies with latest versions
+DEPENDENCIES=(
+    "@commitlint/cli"
+    "@commitlint/config-conventional"
+    "husky"
+    "release-it"
+    "@release-it/conventional-changelog"
+    "dotenv-cli"
+)
+
+for pkg in "${DEPENDENCIES[@]}"; do
+    echo -e "${YELLOW}Installing $pkg...${NC}"
+    npm install --save-dev "$pkg" || error_exit "Failed to install $pkg"
+done
 
 echo -e "${GREEN}✓ Dependencies installed successfully${NC}"
 
@@ -101,6 +116,14 @@ if [ ! -d ".husky" ]; then
     echo -e "${GREEN}✓ Husky setup complete${NC}"
 else
     echo -e "${GREEN}✓ Husky already initialized${NC}"
+fi
+
+# Remove the .husky/pre-commit file
+if [ -f ".husky/pre-commit" ]; then
+    rm .husky/pre-commit
+    echo -e "${GREEN}✓ .husky/pre-commit removed${NC}"
+else
+    echo -e "${GREEN}✓ .husky/pre-commit already removed${NC}"
 fi
 
 # ============================================
@@ -168,7 +191,13 @@ echo -e "${YELLOW}📝 Updating package.json scripts...${NC}"
 # Use jq if available, otherwise use sed
 if command -v jq &> /dev/null; then
     # Using jq to update package.json
-    jq '.scripts += {"release": "dotenv -e .env -- release-it", "prepare": "husky", "test": "echo \"No tests specified\" && exit 0"}' package.json > package.tmp.json && mv package.tmp.json package.json
+    jq '{
+        scripts: {
+            "release": "dotenv -e .env -- release-it",
+            "prepare": "husky",
+            "test": "echo \"No tests specified\" && exit 0"
+        }
+    }' package.json > package.tmp.json && mv package.tmp.json package.json
 else
     # Fallback to sed if jq is not available
     sed -i.bak '/"scripts": {/a \    "release": "dotenv -e .env -- release-it",\n    "prepare": "husky",\n    "test": "echo \"No tests specified\" && exit 0",' package.json
@@ -212,14 +241,6 @@ else
     echo -e "${GREEN}✓ Git repository already initialized${NC}"
 fi
 
-# Remove the .husky/pre-commit file
-if [ -f ".husky/pre-commit" ]; then
-    rm .husky/pre-commit
-    echo -e "${GREEN}✓ .husky/pre-commit removed${NC}"
-else
-    echo -e "${GREEN}✓ .husky/pre-commit already removed${NC}"
-fi
-
 # ============================================
 # Completion
 # ============================================
@@ -228,7 +249,7 @@ echo -e "\nNext steps:"
 echo "1. Update the GITHUB_TOKEN in the .env file with your GitHub personal access token"
 echo "2. Make your first commit with a conventional commit message, e.g.:"
 echo "   git add ."
-echo "   git commit -m 'chore: initial commit'"
+echo "   git commit -m \"chore: Initial commit\""
 echo "3. Create your first release with: npm run release"
 
 exit 0
