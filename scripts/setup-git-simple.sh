@@ -97,11 +97,7 @@ echo -e "${YELLOW}🐶 Setting up Husky...${NC}"
 if [ ! -d ".husky" ]; then
     npx husky init
     # Create commit-msg hook
-    echo '#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-npx --no-install commitlint --edit "$1"' > .husky/commit-msg
-    chmod +x .husky/commit-msg
+    echo 'npx --no-install commitlint --edit "$1"' > .husky/commit-msg
     echo -e "${GREEN}✓ Husky setup complete${NC}"
 else
     echo -e "${GREEN}✓ Husky already initialized${NC}"
