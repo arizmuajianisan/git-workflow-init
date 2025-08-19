@@ -90,22 +90,46 @@ EOL
 echo -e "${GREEN}✓ commitlint configured${NC}"
 
 # ============================================
-# 5. Set up Husky
+# 5. Set Up Husky and lint-staged
 # ============================================
-echo -e "${YELLOW}🐶 Setting up Husky...${NC}"
-# Initialize Husky if not already initialized
+echo -e "\n${YELLOW}🐶 Setting up Husky and lint-staged...${NC}"
+
+# Initialize husky if not already initialized
 if [ ! -d ".husky" ]; then
-    npx husky init
+    npx husky install || error_exit "Failed to initialize husky"
+    
     # Create commit-msg hook
+    mkdir -p .husky
     echo '#!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
 npx --no-install commitlint --edit "$1"' > .husky/commit-msg
-    chmod +x .husky/commit-msg
-    echo -e "${GREEN}✓ Husky setup complete${NC}"
+    
+    # Create pre-commit hook
+    echo '#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npx --no-install lint-staged' > .husky/pre-commit
+    
+    # Make hooks executable
+    chmod +x .husky/*
+    
+    echo -e "${GREEN}✓ Husky hooks configured${NC}"
 else
     echo -e "${GREEN}✓ Husky already initialized${NC}"
 fi
+
+# Configure lint-staged
+echo -e "${YELLOW}📝 Configuring lint-staged...${NC}"
+
+cat > .lintstagedrc.json << 'EOL'
+{
+  "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+  "*.{json,md,yml,yaml}": ["prettier --write"]
+}
+EOL
+
+echo -e "${GREEN}✓ Husky and lint-staged configured${NC}"
 
 # ============================================
 # 6. Configure release-it
