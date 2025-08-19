@@ -136,16 +136,16 @@ cat > .release-it.json << 'EOL'
       "infile": "CHANGELOG.md",
       "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n",
       "types": [
-        { "type": "feat", "section": "Added" },
-        { "type": "fix", "section": "Fixed" },
-        { "type": "docs", "section": "Documentation" },
-        { "type": "style", "section": "Style" },
-        { "type": "refactor", "section": "Refactored" },
-        { "type": "perf", "section": "Performance" },
-        { "type": "test", "section": "Tests" },
-        { "type": "build", "section": "Build System" },
-        { "type": "ci", "section": "CI/CD" },
-        { "type": "chore", "section": "Chores" }
+        { "type": "feat", "section": "✨ Features" },
+        { "type": "fix", "section": "🐛 Bug Fixes" },
+        { "type": "docs", "section": "📝 Documentation" },
+        { "type": "style", "section": "💄 Styles" },
+        { "type": "refactor", "section": "♻️ Code Refactoring" },
+        { "type": "perf", "section": "⚡ Performance Improvements" },
+        { "type": "test", "section": "✅ Tests" },
+        { "type": "build", "section": "📦 Build System" },
+        { "type": "ci", "section": "🔧 CI Configuration" },
+        { "type": "chore", "section": "🔨 Chores" }
       ],
       "releaseRules": [
         { "type": "feat", "release": "minor" },
