@@ -172,10 +172,10 @@ echo -e "${YELLOW}📝 Updating package.json scripts...${NC}"
 # Use jq if available, otherwise use sed
 if command -v jq &> /dev/null; then
     # Using jq to update package.json
-    jq '.scripts += {"release": "dotenv -e .env -- release-it", "prepare": "husky"}' package.json > package.tmp.json && mv package.tmp.json package.json
+    jq '.scripts += {"release": "dotenv -e .env -- release-it", "prepare": "husky", "test": "echo \"No tests specified\" && exit 0"}' package.json > package.tmp.json && mv package.tmp.json package.json
 else
     # Fallback to sed if jq is not available
-    sed -i.bak '/"scripts": {/a \    "release": "dotenv -e .env -- release-it",\n    "prepare": "husky",' package.json
+    sed -i.bak '/"scripts": {/a \    "release": "dotenv -e .env -- release-it",\n    "prepare": "husky",\n    "test": "echo \"No tests specified\" && exit 0",' package.json
     rm -f package.json.bak 2> /dev/null || true
 fi
 
